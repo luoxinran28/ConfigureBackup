@@ -1,0 +1,641 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Maintainer:
+"       Xinran(Sean) Luo
+" Version:
+"       2-27-2015
+" BUGS:
+"
+" Sections:
+"   |-- |General|
+"   |
+"   |-- VIM user interface
+"   |       |__ Line Number and Realtive Number
+"   |       |__ Colors
+"   |       |__ Encoding and Language
+"   |       |__ Cursorline & CursorColumn
+"   |       |__ Status line
+"   |       |__ Search
+"   |       |__ Invisible Symbols
+"   |
+"   |-- .swap Files, Backups and Undotree
+"   |
+"   |-- Programming Languages Related
+"   |       |__ Basic Setting
+"   |       |__ Specific FileTypes Detection and Settings:
+"   |       |           |__ autocmds
+"   |       |           |__ non-autocmds
+"   |       |__ Indent
+"   |       |__ Compile or/and Run
+"   |       |__ Folding
+"   |       |__ Miscellaneous
+"   |       |__ Copy & Paste
+"   |
+"   |-- Plugins Related
+"   |       |__ Vundle Setting BEGIN
+"   |       |__ All Plugins Managed by Vundles
+"   |
+"   |-- [Isolated] Mappings, Abbreviations and User-defined Commands
+"   |       |__ User-defined Commands
+"   |       |__ Mappings
+"   |       |__ Abbreviation
+"   |
+"   |-- END Section
+"   |       |__ Useful in Some Scenarios
+"   |       |__ Testing
+"   |       |__ Snippets Should be Moved to Separate Files
+"
+"
+" Rreferences:
+"       (1) Amir Salihefendic (http://amix.dk - amix@amix.dk)
+"       (2) A lot of vimrc found on the Internet
+"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => *General*:
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+set nocompatible
+
+if v:version < 700
+    echoerr 'This vimrc requires Vim 7 or after.'
+    finish
+endif
+
+augroup vimrc
+    autocmd!
+    autocmd BufReadPre .vimrc setlocal foldlevelstart=1 foldmethod=marker
+    autocmd BufWritePost .vimrc source %
+    autocmd BufWritePost .vimrc doautocmd ColorScheme .vimrc
+    autocmd BufWritePost .gvimrc source %
+    autocmd BufWritePost .gvimrc doautocmd ColorScheme .gvimrc
+
+augroup END
+
+"" normal zz doesn't work for python file
+augroup enter_restore_cursor_position
+  """Remember cursor position when close file, and restore it when open again
+    autocmd!
+    autocmd BufReadPost *
+    \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+    \ execute "normal g'\"" | "normal zz" |
+    \ endif
+augroup END
+
+set autoread
+set hidden
+set history=1000
+set report=0
+set fileformats=unix,dos
+" Without this cursorline color changes too slow!!
+set timeoutlen=1000    ttimeoutlen=0
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => .swap Files, Backups and Undotree:
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+set directory=$HOME/.vim/swaps
+set backup   backupdir=$HOME/.vim/backup   backupext=.vimbak
+if has('persistent_undo')
+    set undofile    undodir=~/.vim/undoTree
+endif
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => VIM user interface:
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+set wrap
+set linebreak
+set title
+set showcmd
+set visualbell
+set noerrorbells
+
+set modeline modelines=3
+set mouse=a
+set foldcolumn=1
+setlocal scrolloff=3
+
+set wildmenu
+set wildignore=*.o,*.obj
+set wildignore+=*~,*.vimbak
+set wildignore+=*.pyc
+
+set splitright
+set splitbelow
+
+set guifont=Monaco:h20
+set guifont=Monospace:h20
+
+set guioptions-=T " Removes top toolbar
+set guioptions-=r " Removes right hand scroll bar
+set go-=L " Removes left hand scroll bar
+set linespace=11
+
+
+    "===========================================
+    " ==> Line Number and Realtive Line Number:
+    "===========================================
+if v:version < 704
+" Combine options number and relativenumber together only works after v7.4
+    set number
+else
+    set number   relativenumber
+endif
+
+"*###*"
+" highlight LineNr guifg=#020202 guibg=#127990
+highlight LineNr ctermfg=65 ctermbg=256 guifg=Yellow
+"*###*"
+
+    "===========================================
+    " ==> Colors:
+    "===========================================
+syntax enable
+
+" if $TERM == "xterm-256color" || $TERM == "screen-256color"
+    " set t_Co=256
+" elseif !has("gui-runing")
+    " echo "NOT 256 COLOR!!! Please check your terminal setting!!!"
+" endif
+
+if &l:t_Co < 256
+    echo "NOT 256 COLOR!!! Please check your terminal setting!!!"
+endif
+
+    "===========================================
+    " ==> Encoding and Language:
+    "===========================================
+set encoding=utf-8
+set fileencodings=usc-dom,utf-8,chinese,taiwan,ansi,japan,korea
+set fileencoding=utf-8
+
+"FOR Chinese Characters
+"set fo+=m
+
+    "===========================================
+    " ==> Cursorline & CursorColumn:
+    "===========================================
+augroup cursorline
+    autocmd!
+    autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+    autocmd WinLeave * setlocal nocursorline
+    autocmd InsertEnter * highlight CursorLine cterm=NONE ctermbg=16  guibg=darkred
+    autocmd InsertLeave * highlight CursorLine cterm=NONE ctermbg=235 guibg=Grey40
+augroup END
+
+
+function! s:SetColorColumn() "{{{
+    let col_num = virtcol(".")
+    let cc_list = split(&cc, ',')
+    if count(cc_list, string(col_num)) <= 0
+        execute "set cc+=".col_num
+    else
+        execute "set cc-=".col_num
+    endif
+    " highlight ColorColumn ctermbg=18 guibg=18
+    highlight ColorColumn ctermbg=18
+endfunction "}}}
+noremap <Leader>ch :call <SID>SetColorColumn()<CR>
+xnoremap <Leader>ch <ESC>:call <SID>SetColorColumn()<CR>v
+
+    "===========================================
+    " ==> Search:
+    "===========================================
+set showmatch   hlsearch   incsearch   ignorecase   smartcase
+set magic
+
+" Bind nohlsearch
+" Removes highlight of your last search
+noremap  <silent> <Leader><C-n> :nohlsearch<CR>
+inoremap <silent> <Leader><C-n> <ESC>:nohlsearch<CR>
+
+nnoremap <silent> n nzz
+nnoremap <silent> N Nzz
+nnoremap <silent> * *zz
+nnoremap <silent> # #zz
+nnoremap <silent> g* g*zz
+nnoremap <silent> g# g#zz
+
+    "=======================================
+    " ==> Invisible Symbols:
+    "=======================================
+""set list
+nnoremap <Leader>ls :setlocal list!<CR>
+nnoremap <Leader>wls :windo set list!<CR>
+"¬ is actually <option-l>. I'm not sure if it displays different symbols in
+"different systems. If it is, try to use "if" to change it.
+set listchars=tab:▸\ ,eol:¬,trail:⋅,extends:❯,precedes:❮
+set showbreak=↪
+" Highlight of listchars is not perfect. Adjust them a little later.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Programming Languages Related:
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    "================================================
+    " ==> Basic Setting:
+    "================================================
+" NO Real <TAB>, only <SPACE>'s
+set shiftwidth=4
+set tabstop=4
+set softtabstop=4
+set expandtab
+
+    "===============
+    " ==> Indent:
+    "===============
+set autoindent    smartindent
+
+augroup indent_style
+    autocmd!
+    autocmd FileType vim setlocal tabstop=4 shiftwidth=4 softtabstop=4 textwidth=79
+    autocmd FileType c,cpp setlocal tabstop=4 shiftwidth=4 softtabstop=5 textwidth=79
+    autocmd FileType java setlocal tabstop=4 shiftwidth=4 softtabstop=4 textwidth=79
+    autocmd FileType php setlocal tabstop=4 shiftwidth=4 softtabstop=4 textwidth=79
+augroup END
+
+" Reselect visual block after indent/outdent
+xnoremap < <gv
+xnoremap > >gv
+
+    "===========================
+    " ==> Compile or/and Run:
+    "===========================
+augroup makeprg_content
+    autocmd!
+    autocmd FileType c setlocal makeprg=gcc\ -Wall\ %
+    autocmd FileType cpp setlocal makeprg=g++\ -Wall\ %
+    autocmd FileType python setlocal makeprg=python\ %
+augroup END
+
+    "=======================================
+    " ==> Folding:
+    "=======================================
+set foldlevelstart=99
+set foldmethod=manual
+set foldlevel=99
+
+    "=======================================
+    " ==> Copy & Paste:
+    "=======================================
+nnoremap Y y$
+nnoremap yY ^y$
+xnoremap <C-c> "+y
+xnoremap <C-p> "+p
+nnoremap dD ^d$
+
+" Toggle paste option
+function! Toggle4CopyPaste() "{{{
+    if &relativenumber
+        setlocal norelativenumber
+        setlocal foldcolumn=0
+        setlocal nolist
+        setlocal paste
+    else
+        setlocal relativenumber
+        setlocal foldcolumn=6
+        setlocal list
+        setlocal nopaste
+    endif
+        execute 'SignatureToggle'
+endfunction "}}}
+
+"###
+nnoremap <silent> <Leader>p :setlocal paste!<CR>
+nnoremap <silent> <Leader>P :call Toggle4CopyPaste()<CR>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Plugins Related:
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    "=======================================
+    " ==> Vundle Setting BEGIN:
+    "=======================================
+" Required by Vundle, and will be setted on later! "{{{
+filetype off
+" Vundle Setting
+set runtimepath+=~/.vim/bundle/Vundle/
+call vundle#rc()
+" Let Vundle manage Vundle, which is the plugin manager for vim
+Plugin 'gmarik/Vundle'
+"}}}
+
+    "========================================
+    " ==> All Plugins Managed by Vundles:
+    "========================================
+"" #01
+" Graph your Vim undo tree in style.
+" URL: http://sjl.bitbucket.org/gundo.vim/
+Plugin 'sjl/gundo.vim'
+let g:gundo_width = 50
+" let g:gundo_playback_delay = 1000
+nnoremap <Leader>gud :GundoToggle<CR>
+
+
+"" #02
+" NERD Commenter.
+Plugin 'scrooloose/nerdcommenter'
+let NERDSpaceDelims=1
+let g:NERDCustomDelimiters = {
+    \ 'c': { 'left': '//' },
+    \ 'cernroot': { 'left': '//' }
+\ }
+" let NERD_C_alt_style=1
+
+
+"" #03
+" Vim motions on speed!
+Plugin 'Lokaltog/vim-easymotion'
+" Settings
+let g:EasyMotion_keys =
+        \'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890,;/]["'
+
+
+"" #04
+" Tab completion of words inside of a search ('/')
+Plugin 'vim-scripts/SearchComplete'
+" !!! Conflict with vim <S-Left> and <S-Right>, which is actually a conflict
+" with <Left> and <Right>. Since this conflict, I can't use command line edit.
+
+
+"" #05
+" Delete/change/add parentheses/quotes/XML-tags/much more with ease
+Plugin 'vim-scripts/surround.vim'
+
+
+"" #06
+" Enable repeating supported plugin maps with "."
+Plugin 'tpope/vim-repeat'
+
+
+"" #07
+" Precision colorscheme for the vim text editor
+" Plugin 'altercation/vim-colors-solarized'
+"http://mitchmckenna.com/post/11527/setting-up-vim-powerline-for-solarized-theme-on-mac-os-x
+
+
+"" #08
+" Plugin to toggle, display and navigate marks
+Plugin 'kshenoy/vim-signature'
+
+
+"" #09
+" True Sublime Text style multiple selections for vim
+Plugin 'terryma/vim-multiple-cursors'
+
+
+"" #10
+" A vim plugin to display the indention levels with thin vertical lines
+" Plugin 'Yggdroot/indentLine'
+let g:indentLine_enabled=0
+let g:indentLine_showFirstIndentLevel=1
+let g:indentLine_char = '┊'
+nnoremap <silent> <Leader>il :IndentLinesToggle<CR>
+
+
+"" #11
+" Syntax checking hacks for vim
+Plugin 'scrooloose/syntastic'
+let g:syntastic_check_on_wq = 0
+highlight SyntasticErrorLine guibg=#2f0000
+let g:syntastic_error_symbol='✗'
+let g:syntastic_warning_symbol='⚠'
+
+
+"" #12
+" Fugitive bundle
+Plugin 'tpope/vim-fugitive'
+
+
+"" #13
+" Install powerline for vim
+set nocompatible
+filetype off
+set rtp+=~/.vim/bundle/vundle/
+" call vundle#rc()
+Bundle 'gmarik/vundle'
+Bundle 'Lokaltog/vim-powerline'
+filetype plugin indent on
+
+set laststatus=2
+set encoding=utf-8
+set t_Co=256
+let g:Powerline_symbols = 'fancy'
+
+
+"" #14
+" Vim plugin that displays tags in a window, ordered by class etc.
+Plugin 'majutsushi/tagbar'
+nnoremap <silent> <Leader>tb :TagbarToggle<CR>
+
+nmap <C-p> :TagbarToggle<CR>
+
+
+"" #15
+" NerdTree bundle
+Plugin 'scrooloose/nerdtree'
+" NerdTree setup
+map <Leader>nt :NERDTreeToggle<CR>
+
+
+"" #16
+" Alternate Files quickly (.c --> .h etc)
+Plugin 'vim-scripts/a.vim'
+
+
+"" #17
+" A nicer Python indentation style for vim.
+Plugin 'hynek/vim-python-pep8-indent'
+    "Python indent problem(if WITHOUT this plugin):
+    "   SHOULD BE
+    " os.system('cp ' + dir01 + os.sep + filename + '{.long.fit,.png} ' + tmp +
+    "           os.sep)
+    "   ACTUALLY IS(this is NOT obey pep8 standard)
+    " os.system('cp ' + dir01 + os.sep + filename + '{.long.fit,.png} ' + tmp +
+    "         os.sep)
+
+"" #18
+Plugin 'nvie/vim-flake8'
+"" #XX
+" Plugin 'davidhalter/jedi-vim'
+"" For Python
+" Vim python-mode. PyLint, Rope, Pydoc, breakpoints from box.
+" Plugin 'klen/python-mode'
+" let :pymode = 1
+" let g:pymode_python = 'python'
+
+"" #19
+" Unite and create user interfaces.
+Plugin 'Shougo/unite.vim'
+
+
+"" #20
+" ASCII drawing plugin: lines, ellipses, arrows, fills, and more!
+Plugin 'vim-scripts/DrawIt'
+
+
+"" #21
+" Pasting in Vim with indentation adjusted to destination context
+Plugin 'sickill/vim-pasta'
+let g:pasta_enabled_filetypes = ['python', 'ruby', 'javascript', 'css', 'sh']
+
+
+"" #22-01
+" Plugin for storing Charles E. Campbell, Jr.'s calutil vim utility functions
+Plugin 'cskeeters/vim-calutil'
+"" #22-02
+" Produce increasing/decreasing columns of numbers, dates, or daynames
+Plugin 'vim-scripts/VisIncr'
+
+"" #23
+" A vim plugin to display the indention levels with thin vertical lines
+Plugin 'Yggdroot/indentLine'
+
+"" #24
+" Vim script for text filtering and alignment
+Plugin 'godlygeek/tabular'
+
+
+
+"" #25
+" fold the php class and functions
+" Plugin 'phpfolding.vim'
+" map <F5> <Esc>:EnableFastPHPFolds<Cr> 
+" map <F6> <Esc>:EnablePHPFolds<Cr> 
+" map <F7> <Esc>:DisablePHPFolds<Cr> 
+
+"" #26
+" Automatically complete php functions
+Plugin 'shawncplus/phpcomplete.vim'
+" let g:phpcomplete_enhance_jump_to_definition = 1
+" Plugin 'Shougo/vimproc'
+" Plugin 'Shougo/unite.vim'
+" Plugin 'm2mdas/phpcomplete-extended'
+
+"" #27
+" Retrive variables.
+
+set tags=./tags,tags;
+set autochdir
+
+let php_folding=0 
+
+"" #28 MRU
+" most recent used files.
+Plugin 'yegappan/mru'
+
+"" #29 Conque-GDB
+" GDB command line interface and terminal emulator in (G)Vim.
+" Plugin 'vim-scripts/Conque-GDB'
+
+"" #29 VDebug
+" Xdebug for vim. Has been tested with PHP, Python, Ruby, Perl, Tcl and NodeJS.
+" Once in debugging mode, the following default mappings are available:
+" <F5>: start/run (to next breakpoint/end of script)
+" <F2>: step over
+" <F3>: step into
+" <F4>: step out
+" <F6>: stop debugging
+" <F7>: detach script from debugger
+" <F9>: run to cursor
+" <F10>: toggle line breakpoint
+" <F11>: show context variables (e.g. after "eval")
+" <F12>: evaluate variable under cursor
+" :Breakpoint <type> <args>: set a breakpoint of any type (see :help
+" VdebugBreakpoints)
+" :VdebugEval <code>: evaluate some code and display the result
+" <Leader>e: evaluate the expression under visual highlight and display the
+" result
+Bundle 'joonty/vdebug.git'
+
+
+    "=======================================
+    " ==> Vundle Setting END:
+    "=======================================
+" Required by Vundle, and will be setted on later! "{{{
+filetype plugin indent on
+"}}}
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => #####
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" ########### Need if else structure to make a colorscheme fallback #########
+syntax reset
+syntax enable
+if &l:t_Co == 256
+    " For vim work under tmux. Without these settings, under tmux, the colors
+    " displayed are wierd!
+    set background=dark
+    " let g:solarized_termcolors=256
+    " let g:solarized_termtrans=1
+    let g:solarized_contrast="high"
+    let g:solarized_visibility="high"
+    ""
+    " Since solarized colorscheme is installed as bundle #25, this sentence
+    " must be put after the bundle of solarized colorscheme, or solarized can
+    " not be found.
+    " colorscheme solarized
+    colorscheme xoria256
+
+elseif &l:t_Co == 16
+    echo "16 colors"
+    colorscheme desert
+elseif &l:t_Co == 8
+    echo "8 colors"
+endif
+
+" syntax enable should be after set background
+syntax enable
+highlight NonText ctermfg=20 guifg=Yellow
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => [Isolated] Mappings, Abbreviations and User-defined Commands:
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+command! -nargs=1 -complete=help Help vertical belowright help <args>
+command! -nargs=1 -complete=help H vertical belowright help <args>
+
+abbrev gm !php artisan generate:model
+
+    "========================================
+    " ==> Mappings:
+    "========================================
+"\begin{Mappings} ---------------------------- {{{1
+            "++++++++++++++++++++++
+            " ===> Simulation:
+            "++++++++++++++++++++++
+" Remember!!! vim is a mode edtor. I map to create motion in INSERT mode is just
+" for some small scale motion only.
+inoremap <C-F> <Right>
+inoremap <C-B> <Left>
+inoremap <C-A> <HOME>
+inoremap <C-E> <END>
+
+nmap <C-h> <C-w>h
+nmap <C-j> <C-w>j
+nmap <C-k> <C-w>k
+nmap <C-l> <C-w>l
+nmap <C-o> :NERDTreeToggle<cr> 
+nmap <leader>lcd :e app/config/database.php<cr>
+
+nmap vs :vsplit<cr>
+nmap sp :split<cr>
+
+nmap :ed :edit %:p:h/
+
+imap ,. <esc>
+
+nnoremap <silent> <Leader>erc :vsplit $MYVIMRC<CR>
+
+"\end{Mappings} ---------------------------- {{{1
+
+    "========================================
+    " ==> Useful in Some Scenarios:
+    "========================================
+" Sometime when trying to move the cursor through using arrow keys in INSERT
+" MODE, letters A/B/C/D might be input, rather than cursor movements happen.
+" If this happens, try to use the inoremaps below to get around of it.
+" inoremap OA <ESC>ki
+" inoremap OB <ESC>ji
+" inoremap OC <ESC>li
+" inoremap OD <ESC>hi
