@@ -2,7 +2,7 @@
 " Maintainer:
 "       Xinran(Sean) Luo
 " Version:
-"       2-27-2015
+"       1-27-2016
 " BUGS:
 "
 " Sections:
@@ -312,12 +312,13 @@ nnoremap <silent> <Leader>P :call Toggle4CopyPaste()<CR>
     " ==> Vundle Setting BEGIN:
     "=======================================
 " Required by Vundle, and will be setted on later! "{{{
+set nocompatible
 filetype off
 " Vundle Setting
 set runtimepath+=~/.vim/bundle/Vundle/
 call vundle#rc()
 " Let Vundle manage Vundle, which is the plugin manager for vim
-Plugin 'gmarik/Vundle'
+Plugin 'gmarik/vundle'
 "}}}
 
     "========================================
@@ -336,20 +337,13 @@ nnoremap <Leader>gud :GundoToggle<CR>
 " NERD Commenter.
 Plugin 'scrooloose/nerdcommenter'
 let NERDSpaceDelims=1
-let g:NERDCustomDelimiters = {
-    \ 'c': { 'left': '//' },
-    \ 'cernroot': { 'left': '//' }
-\ }
-" let NERD_C_alt_style=1
-
 
 "" #03
 " Vim motions on speed!
-Plugin 'Lokaltog/vim-easymotion'
+Plugin 'easymotion/vim-easymotion'
 " Settings
 let g:EasyMotion_keys =
         \'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890,;/]["'
-
 
 "" #04
 " Tab completion of words inside of a search ('/')
@@ -367,53 +361,48 @@ Plugin 'vim-scripts/surround.vim'
 " Enable repeating supported plugin maps with "."
 Plugin 'tpope/vim-repeat'
 
-
 "" #07
-" Precision colorscheme for the vim text editor
-" Plugin 'altercation/vim-colors-solarized'
-"http://mitchmckenna.com/post/11527/setting-up-vim-powerline-for-solarized-theme-on-mac-os-x
+" Plugin to toggle, display and navigate marks
+" Plugin 'kshenoy/vim-signature'
 
 
 "" #08
-" Plugin to toggle, display and navigate marks
-Plugin 'kshenoy/vim-signature'
-
-
-"" #09
 " True Sublime Text style multiple selections for vim
 Plugin 'terryma/vim-multiple-cursors'
 
 
-"" #10
+"" #09
 " A vim plugin to display the indention levels with thin vertical lines
-" Plugin 'Yggdroot/indentLine'
+Plugin 'Yggdroot/indentLine'
 let g:indentLine_enabled=0
 let g:indentLine_showFirstIndentLevel=1
 let g:indentLine_char = '┊'
 nnoremap <silent> <Leader>il :IndentLinesToggle<CR>
 
 
-"" #11
+"" #10
 " Syntax checking hacks for vim
 Plugin 'scrooloose/syntastic'
+" set statusline+=%#warningmsg#
+" set statusline+=%{SyntasticStatuslineFlag()}
+" set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 highlight SyntasticErrorLine guibg=#2f0000
 let g:syntastic_error_symbol='✗'
 let g:syntastic_warning_symbol='⚠'
 
 
-"" #12
-" Fugitive bundle
-Plugin 'tpope/vim-fugitive'
-
-
-"" #13
+"" #11
 " Install powerline for vim
-set nocompatible
-filetype off
-set rtp+=~/.vim/bundle/vundle/
+" set nocompatible
+"filetype off
+"set rtp+=~/.vim/bundle/vundle/
 " call vundle#rc()
-Bundle 'gmarik/vundle'
+"Bundle 'gmarik/vundle'
 Bundle 'Lokaltog/vim-powerline'
 filetype plugin indent on
 
@@ -423,130 +412,65 @@ set t_Co=256
 let g:Powerline_symbols = 'fancy'
 
 
-"" #14
+"" #12
 " Vim plugin that displays tags in a window, ordered by class etc.
 Plugin 'majutsushi/tagbar'
 nnoremap <silent> <Leader>tb :TagbarToggle<CR>
-
 nmap <C-p> :TagbarToggle<CR>
 
 
-"" #15
+"" #13
 " NerdTree bundle
 Plugin 'scrooloose/nerdtree'
 " NerdTree setup
 map <Leader>nt :NERDTreeToggle<CR>
 
-
-"" #16
-" Alternate Files quickly (.c --> .h etc)
-Plugin 'vim-scripts/a.vim'
-
-
-"" #17
-" A nicer Python indentation style for vim.
-Plugin 'hynek/vim-python-pep8-indent'
-    "Python indent problem(if WITHOUT this plugin):
-    "   SHOULD BE
-    " os.system('cp ' + dir01 + os.sep + filename + '{.long.fit,.png} ' + tmp +
-    "           os.sep)
-    "   ACTUALLY IS(this is NOT obey pep8 standard)
-    " os.system('cp ' + dir01 + os.sep + filename + '{.long.fit,.png} ' + tmp +
-    "         os.sep)
-
-"" #18
-Plugin 'nvie/vim-flake8'
-"" #XX
-" Plugin 'davidhalter/jedi-vim'
-"" For Python
-" Vim python-mode. PyLint, Rope, Pydoc, breakpoints from box.
-" Plugin 'klen/python-mode'
-" let :pymode = 1
-" let g:pymode_python = 'python'
-
-"" #19
-" Unite and create user interfaces.
-Plugin 'Shougo/unite.vim'
-
-
-"" #20
-" ASCII drawing plugin: lines, ellipses, arrows, fills, and more!
-Plugin 'vim-scripts/DrawIt'
-
-
-"" #21
+"" #14
 " Pasting in Vim with indentation adjusted to destination context
 Plugin 'sickill/vim-pasta'
 let g:pasta_enabled_filetypes = ['python', 'ruby', 'javascript', 'css', 'sh']
 
-
-"" #22-01
-" Plugin for storing Charles E. Campbell, Jr.'s calutil vim utility functions
-Plugin 'cskeeters/vim-calutil'
-"" #22-02
-" Produce increasing/decreasing columns of numbers, dates, or daynames
-Plugin 'vim-scripts/VisIncr'
-
-"" #23
-" A vim plugin to display the indention levels with thin vertical lines
-Plugin 'Yggdroot/indentLine'
-
-"" #24
+"" #15
 " Vim script for text filtering and alignment
 Plugin 'godlygeek/tabular'
 
 
-
-"" #25
-" fold the php class and functions
-" Plugin 'phpfolding.vim'
-" map <F5> <Esc>:EnableFastPHPFolds<Cr> 
-" map <F6> <Esc>:EnablePHPFolds<Cr> 
-" map <F7> <Esc>:DisablePHPFolds<Cr> 
-
-"" #26
-" Automatically complete php functions
-Plugin 'shawncplus/phpcomplete.vim'
-" let g:phpcomplete_enhance_jump_to_definition = 1
-" Plugin 'Shougo/vimproc'
-" Plugin 'Shougo/unite.vim'
-" Plugin 'm2mdas/phpcomplete-extended'
-
-"" #27
-" Retrive variables.
-
-set tags=./tags,tags;
-set autochdir
-
-let php_folding=0 
-
-"" #28 MRU
+"" #16 MRU
 " most recent used files.
 Plugin 'yegappan/mru'
 
-"" #29 Conque-GDB
-" GDB command line interface and terminal emulator in (G)Vim.
-" Plugin 'vim-scripts/Conque-GDB'
 
-"" #29 VDebug
-" Xdebug for vim. Has been tested with PHP, Python, Ruby, Perl, Tcl and NodeJS.
-" Once in debugging mode, the following default mappings are available:
-" <F5>: start/run (to next breakpoint/end of script)
-" <F2>: step over
-" <F3>: step into
-" <F4>: step out
-" <F6>: stop debugging
-" <F7>: detach script from debugger
-" <F9>: run to cursor
-" <F10>: toggle line breakpoint
-" <F11>: show context variables (e.g. after "eval")
-" <F12>: evaluate variable under cursor
-" :Breakpoint <type> <args>: set a breakpoint of any type (see :help
-" VdebugBreakpoints)
-" :VdebugEval <code>: evaluate some code and display the result
-" <Leader>e: evaluate the expression under visual highlight and display the
-" result
-Bundle 'joonty/vdebug.git'
+"" #17
+" JavaScript bundle for vim, this bundle provides syntax and indent plugins.
+Plugin 'pangloss/vim-javascript'
+
+
+"" #18
+" YouCompleteMe is a fast, as-you-type, fuzzy-search code completion engine for
+" Vim. It has several completion engines
+Plugin 'valloric/youcompleteme'
+
+"" #19
+" This is a Vim plugin that provides Tern-based JavaScript editing support.
+" In JavaScript files, the package will hook into omni completion to handle
+" autocompletion, and provide the following commands:
+" TernDef: Jump to the definition of the thing under the cursor.
+" TernDoc: Look up the documentation of something.
+" TernType: Find the type of the thing under the cursor.
+" TernRefs: Show all references to the variable or property under the cursor.
+" TernRename: Rename the variable under the cursor.
+Plugin 'ternjs/tern_for_vim'
+
+
+"" #19
+" Unite and create user interfaces.
+" Plugin 'Shougo/unite.vim'
+
+
+"" #20
+" ASCII drawing plugin: lines, ellipses, arrows, fills, and more!
+" Plugin 'vim-scripts/DrawIt'
+
 
 
     "=======================================
@@ -622,8 +546,6 @@ nmap vs :vsplit<cr>
 nmap sp :split<cr>
 
 nmap :ed :edit %:p:h/
-
-imap ,. <esc>
 
 nnoremap <silent> <Leader>erc :vsplit $MYVIMRC<CR>
 
