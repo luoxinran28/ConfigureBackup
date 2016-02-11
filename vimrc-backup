@@ -111,6 +111,7 @@ set title
 set showcmd
 set visualbell
 set noerrorbells
+set formatoptions-=cro
 
 set modeline modelines=3
 set mouse=a
@@ -137,12 +138,12 @@ set linespace=11
     "===========================================
     " ==> Line Number and Realtive Line Number:
     "===========================================
-if v:version < 704
+" if v:version < 704
 " Combine options number and relativenumber together only works after v7.4
     set number
-else
-    set number   relativenumber
-endif
+" else
+"     set number   relativenumber
+" endif
 
 "*###*"
 " highlight LineNr guifg=#020202 guibg=#127990
@@ -253,6 +254,7 @@ augroup indent_style
     autocmd FileType c,cpp setlocal tabstop=4 shiftwidth=4 softtabstop=5 textwidth=79
     autocmd FileType java setlocal tabstop=4 shiftwidth=4 softtabstop=4 textwidth=79
     autocmd FileType php setlocal tabstop=4 shiftwidth=4 softtabstop=4 textwidth=79
+    autocmd FileType js setlocal tabstop=2 shiftwidth=2 softtabstop=2 textwidth=79
 augroup END
 
 " Reselect visual block after indent/outdent
@@ -281,9 +283,10 @@ set foldlevel=99
     "=======================================
 nnoremap Y y$
 nnoremap yY ^y$
-xnoremap <C-c> "+y
-xnoremap <C-p> "+p
+" xnoremap <C-c> "+y
+" xnoremap <C-p> "+p
 nnoremap dD ^d$
+set pastetoggle=<F12>
 
 " Toggle paste option
 function! Toggle4CopyPaste() "{{{
@@ -334,7 +337,7 @@ nnoremap <Leader>gud :GundoToggle<CR>
 
 
 "" #02
-" NERD Commenter.
+" NERD Commente
 Plugin 'scrooloose/nerdcommenter'
 let NERDSpaceDelims=1
 
@@ -398,13 +401,7 @@ let g:syntastic_warning_symbol='⚠'
 
 "" #11
 " Install powerline for vim
-" set nocompatible
-"filetype off
-"set rtp+=~/.vim/bundle/vundle/
-" call vundle#rc()
-"Bundle 'gmarik/vundle'
 Bundle 'Lokaltog/vim-powerline'
-filetype plugin indent on
 
 set laststatus=2
 set encoding=utf-8
@@ -423,12 +420,12 @@ nmap <C-p> :TagbarToggle<CR>
 " NerdTree bundle
 Plugin 'scrooloose/nerdtree'
 " NerdTree setup
-map <Leader>nt :NERDTreeToggle<CR>
+nmap <C-o> :NERDTreeToggle<cr> 
 
 "" #14
 " Pasting in Vim with indentation adjusted to destination context
 Plugin 'sickill/vim-pasta'
-let g:pasta_enabled_filetypes = ['python', 'ruby', 'javascript', 'css', 'sh']
+let g:pasta_enabled_filetypes = ['python', 'ruby', 'js', 'css', 'sh']
 
 "" #15
 " Vim script for text filtering and alignment
@@ -448,7 +445,7 @@ Plugin 'pangloss/vim-javascript'
 "" #18
 " YouCompleteMe is a fast, as-you-type, fuzzy-search code completion engine for
 " Vim. It has several completion engines
-Plugin 'valloric/youcompleteme'
+" Plugin 'valloric/youcompleteme'
 
 "" #19
 " This is a Vim plugin that provides Tern-based JavaScript editing support.
@@ -459,7 +456,7 @@ Plugin 'valloric/youcompleteme'
 " TernType: Find the type of the thing under the cursor.
 " TernRefs: Show all references to the variable or property under the cursor.
 " TernRename: Rename the variable under the cursor.
-Plugin 'ternjs/tern_for_vim'
+" Plugin 'ternjs/tern_for_vim'
 
 
 "" #19
@@ -500,7 +497,9 @@ if &l:t_Co == 256
     " must be put after the bundle of solarized colorscheme, or solarized can
     " not be found.
     " colorscheme solarized
+    " colorscheme desertEx
     colorscheme xoria256
+
 
 elseif &l:t_Co == 16
     echo "16 colors"
@@ -539,7 +538,6 @@ nmap <C-h> <C-w>h
 nmap <C-j> <C-w>j
 nmap <C-k> <C-w>k
 nmap <C-l> <C-w>l
-nmap <C-o> :NERDTreeToggle<cr> 
 nmap <leader>lcd :e app/config/database.php<cr>
 
 nmap vs :vsplit<cr>
